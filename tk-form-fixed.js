@@ -1,202 +1,201 @@
-(function (window) {
-  let formClass = '.custom-form';
-  let customSubmitClass = '.custom-form-submit';
+!function(t){
+  let e=".custom-form",r=".custom-form-submit";
 
-  function init(options = {}) {
-    formClass = options.formClass || formClass;
-    customSubmitClass = options.customSubmitClass || customSubmitClass;
+  const o=(t={})=>{
+    e=t.formClass||e;
+    r=t.customSubmitClass||r;
 
-    t_onReady(function () {
-      t_onFuncLoad('t_zeroForms__onReady', function () {
-        build();
+    t_onReady(()=>{
+      t_onFuncLoad("t_zeroForms__onReady",()=>{
+        n();
       });
     });
-  }
+  };
 
-  function build() {
-    const formBlocks = document.querySelectorAll(formClass);
+  const n=()=>{
+    let forms=document.querySelectorAll(e);
 
-    if (!formBlocks.length) {
-      console.error('[TKFORM FIXED] Forms not found:', formClass);
+    if(forms.length===0){
+      console.error("[TKFORM FIXED] Не найдено ни одной формы с классом",e);
       return;
     }
 
-    const zeroBlocks = new Set();
+    let records=new Set;
 
-    formBlocks.forEach(function (formBlock) {
-      const rec = formBlock.closest('.t-rec');
-      if (rec) zeroBlocks.add(rec);
+    forms.forEach(form=>{
+      let rec=form.closest(".t-rec");
+      if(rec) records.add(rec);
     });
 
-    if (!zeroBlocks.size) {
-      console.error('[TKFORM FIXED] Zero blocks not found');
+    if(records.size===0){
+      console.error("[TKFORM FIXED] Не найдено ни одного зеро блока с формами");
       return;
     }
 
-    removeNativeSubmitButtons(formBlocks);
-    initInputContentClass(formBlocks);
-    createCombinedForms(zeroBlocks);
-  }
+    i(forms);
+    s(records);
+    a(forms);
+  };
 
-  function removeNativeSubmitButtons(formBlocks) {
-    formBlocks.forEach(function (formBlock) {
-      const nativeSubmit = formBlock.querySelector('.tn-form__submit');
-      if (nativeSubmit) nativeSubmit.remove();
+  const i=forms=>{
+    forms.forEach(form=>{
+      form.querySelector(".tn-form__submit")?.remove();
     });
-  }
+  };
 
-  function initInputContentClass(formBlocks) {
-    formBlocks.forEach(function (formBlock) {
-      const inputs = formBlock.querySelectorAll(
-        '.t-input:not(.t-inputquantity):not(.t-input-phonemask__wrap):not(.t-input-phonemask):not(.t-input__own-answer)'
-      );
+  const a=forms=>{
+    forms.forEach(form=>{
+      Array.prototype.slice.call(
+        form.querySelectorAll(".t-input:not(.t-inputquantity):not(.t-input-phonemask__wrap):not(.t-input-phonemask):not(.t-input__own-answer)")
+      ).forEach(function(input){
+        if(input.dataset.tkBlurFixed==="true") return;
+        input.dataset.tkBlurFixed="true";
 
-      inputs.forEach(function (input) {
-        input.addEventListener('blur', function (event) {
-          if (event.target.value) {
-            event.target.classList.add('t-input_has-content');
-          } else {
-            event.target.classList.remove('t-input_has-content');
+        input.addEventListener("blur",function(event){
+          if(event.target.value){
+            event.target.classList.add("t-input_has-content");
+          }else{
+            event.target.classList.remove("t-input_has-content");
           }
         });
       });
     });
-  }
+  };
 
-  function createCombinedForms(zeroBlocks) {
-    zeroBlocks.forEach(function (rec) {
-      const artboard = rec.querySelector('.t396__artboard');
-      const formBlocks = rec.querySelectorAll(formClass);
-      const customSubmit = rec.querySelector(customSubmitClass);
+  const s=records=>{
+    records.forEach(rec=>{
+      if(rec.dataset.tkFormFixedReady==="true") return;
+      rec.dataset.tkFormFixedReady="true";
 
-      if (!artboard) {
-        console.error('[TKFORM FIXED] Artboard not found in block:', rec);
+      let artboard=rec.querySelector(".t396__artboard");
+      let forms=rec.querySelectorAll(e);
+      let submit=rec.querySelector(r);
+
+      if(!artboard){
+        console.error("[TKFORM FIXED] Не найден элемент t396__artboard в блоке:",rec);
         return;
       }
 
-      if (!formBlocks.length) {
-        console.error('[TKFORM FIXED] Forms not found in block:', rec);
+      if(forms.length===0){
+        console.error(`[TKFORM FIXED] Не найдено ни одной формы с классом ${e} в блоке`,rec);
         return;
       }
 
-      if (!customSubmit) {
-        console.error('[TKFORM FIXED] Custom submit button not found:', customSubmitClass);
+      if(!submit){
+        console.error(`[TKFORM FIXED] Не найдено кнопки submit с классом ${r} в блоке`,rec);
         return;
       }
 
-      const formId = artboard.dataset.artboardRecid
-        ? 'tk-form-fixed-' + artboard.dataset.artboardRecid
-        : 'tk-form-fixed-' + Math.floor(100000 + Math.random() * 900000);
+      let id=artboard.dataset.artboardRecid
+        ? "tk-form"+artboard.dataset.artboardRecid
+        : "tk-form"+Math.floor(1e5+9e5*Math.random());
 
-      const wrapper = document.createElement('div');
+      let wrapper=document.createElement("div");
 
-      wrapper.innerHTML =
-        '<form class="t-form t-form_inputs-total_2 js-form-proccess" ' +
-        'id="' + formId + '" ' +
-        'name="' + formId + '" ' +
-        'action="https://forms.tildacdn.com/procces/" ' +
-        'method="POST" ' +
-        'role="form" ' +
-        'data-formactiontype="2" ' +
-        'data-inputbox=".t-input-group" ' +
-        'data-success-callback="t396_onSuccess" ' +
-        'data-success-popup="y" ' +
-        'data-error-popup="y"></form>';
+      wrapper.innerHTML=`<form class="t-form t-form_inputs-total_2 js-form-proccess" id="${id}" name="form778879734" action="https://forms.tildacdn.com/procces/" method="POST" role="form" data-formactiontype="2" data-inputbox=".t-input-group" data-success-callback="t396_onSuccess" data-success-popup="y" data-error-popup="y"></form>`;
 
-      const combinedForm = wrapper.firstChild;
+      let combinedForm=wrapper.childNodes[0];
 
-      formBlocks.forEach(function (formBlock) {
-        const innerForm = formBlock.querySelector('form');
+      forms.forEach(formBlock=>{
+        let innerForm=formBlock.querySelector("form");
 
-        if (!innerForm) {
-          console.error('[TKFORM FIXED] Inner form not found:', formBlock);
+        if(!innerForm){
+          console.error("[TKFORM FIXED] Не найдено формы в элементе",formBlock);
           return;
         }
 
-        const divInsteadForm = document.createElement('div');
+        let div=document.createElement("div");
 
-        Array.from(innerForm.attributes).forEach(function (attr) {
-          divInsteadForm.setAttribute(attr.name, attr.value);
+        [...innerForm.attributes].forEach(attr=>{
+          div.setAttribute(attr.name,attr.value);
         });
 
-        divInsteadForm.append(...innerForm.cloneNode(true).childNodes);
-        innerForm.replaceWith(divInsteadForm);
+        div.append(...innerForm.cloneNode(true).childNodes);
+        innerForm.replaceWith(div);
 
         combinedForm.appendChild(formBlock);
       });
 
-      combinedForm.appendChild(customSubmit);
+      combinedForm.appendChild(submit);
       artboard.appendChild(combinedForm);
 
-      prepareSubmit(combinedForm, customSubmit);
+      l(combinedForm,submit);
     });
-  }
+  };
 
-  function prepareSubmit(form, button) {
-    if (!form || !button) return;
+  const l=(form,submit)=>{
+    if(!form){
+      console.error("[TKFORM FIXED] Не найдено комбинированной формы");
+      return;
+    }
 
-    button.setAttribute('type', 'button');
-    button.setAttribute('tabindex', '0');
-    button.setAttribute('onKeyDown', 'tkForm.handleSubmitKeyDown(event)');
+    if(!submit){
+      console.error("[TKFORM FIXED] Не найдено кнопки submit в форме",form);
+      return;
+    }
 
-    const oldStyle = button.getAttribute('style') || '';
-    button.setAttribute('style', oldStyle + '; cursor: pointer;');
+    submit.setAttribute("type","submit");
+    submit.setAttribute("tabindex","0");
+    submit.setAttribute("onKeyDown","tkForm.handleSubmitKeyDown(event)");
 
-    button.addEventListener(
-      'click',
-      function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
+    let style=submit.getAttribute("style")||"";
+    submit.setAttribute("style",style+" cursor: pointer;");
 
-        if (form.dataset.tkSending === 'true') return false;
+    if(submit.dataset.tkClickFixed==="true") return;
+    submit.dataset.tkClickFixed="true";
 
-        window.tildaForm.hideErrors(form);
+    submit.addEventListener("click",event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
 
-        const errors = window.tildaForm.validate(form);
+      if(form.dataset.tkSending==="true") return false;
 
-        if (errors.length) {
-          window.tildaForm.showErrors(form, errors);
-          return false;
-        }
+      window.tildaForm.hideErrors(form);
 
-        if (!window.t_forms__initBtnClick) {
-          console.error('[TKFORM FIXED] t_forms__initBtnClick is not initialized');
-          return false;
-        }
+      let errors=window.tildaForm.validate(form);
 
-        form.dataset.tkSending = 'true';
-        button.dataset.tkSending = 'true';
-
-        button.classList.add('t-submit');
-
-        window.t_forms__initBtnClick(event);
-
-        setTimeout(function () {
-          form.dataset.tkSending = 'false';
-          button.dataset.tkSending = 'false';
-        }, 10000);
-
+      if(errors.length){
+        window.tildaForm.showErrors(form,errors);
         return false;
-      },
-      true
-    );
+      }
 
-    t_onReady(function () {
-      setTimeout(function () {
-        button.classList.remove('t-submit');
-      }, 500);
+      if(!t_forms__initBtnClick){
+        console.error("[TKFORM FIXED] Функция t_forms__initBtnClick не инициализирована на странице");
+        return false;
+      }
+
+      form.dataset.tkSending="true";
+
+      t_forms__initBtnClick(event);
+
+      setTimeout(()=>{
+        form.dataset.tkSending="false";
+      },10000);
+
+      return false;
+    },true);
+
+    submit.classList.add("t-submit");
+
+    t_onReady(function(){
+      setTimeout(function(){
+        if(window.t_upwidget__init){
+          t_zeroForms__onFuncLoad("t_upwidget__init",()=>submit.classList.remove("t-submit"));
+        }else{
+          submit.classList.remove("t-submit");
+        }
+      },500);
     });
-  }
+  };
 
-  window.tkForm = {
-    init: init,
-
-    handleSubmitKeyDown: function (event) {
-      if (event.keyCode === 13 || event.keyCode === 32) {
+  t.tkForm={
+    init:o,
+    handleSubmitKeyDown:function(event){
+      if(event.keyCode===13||event.keyCode===32){
         event.preventDefault();
-        event.target.dispatchEvent(new Event('click'));
+        event.target.dispatchEvent(new Event("click"));
       }
     }
   };
-})(window);
+}(window);
