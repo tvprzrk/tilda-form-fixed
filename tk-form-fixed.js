@@ -1,180 +1,88 @@
-!function(t){
-let e=".custom-form",r=".custom-form-submit";
+(function(window){
 
-let o=(t={})=>{
-  e=t.formClass||e;
-  r=t.customSubmitClass||r;
-  t_onReady(()=>{
-    t_onFuncLoad("t_zeroForms__onReady",()=>{
-      n()
-    })
-  })
-};
+window.tkForm = {
+  init: function(options){
 
-let n=()=>{
-  let t=document.querySelectorAll(e);
-  if(0===t.length){
-    console.error("[TKFORM] Не найдено ни одной формы с классом",e);
-    return
-  }
+    const formClass = options.formClass || '.custom-form';
+    const submitClass = options.customSubmitClass || '.custom-form-submit';
 
-  let r=new Set;
-  t.forEach(t=>{
-    let e=t.closest(".t-rec");
-    e&&r.add(e)
-  });
+    const forms = Array.from(document.querySelectorAll(formClass));
+    const submit = document.querySelector(submitClass);
 
-  if(0===r.length){
-    console.error("[TKFORM] Не найдено ни одного зеро блока с формами");
-    return
-  }
+    if(!forms.length || !submit) return;
 
-  i(t);
-  s(r);
-  a(t)
-};
+    const mainForm = forms[0];
 
-let i=t=>{
-  t.forEach(t=>t.querySelector(".tn-form__submit")?.remove())
-};
+    forms.slice(1).forEach(function(form){
 
-let a=t=>{
-  t.forEach(t=>{
-    Array.prototype.slice.call(
-      t.querySelectorAll(".t-input:not(.t-inputquantity):not(.t-input-phonemask__wrap):not(.t-input-phonemask):not(.t-input__own-answer)")
-    ).forEach(function(t){
-      t.addEventListener("blur",function(t){
-        t.target.value
-          ? t.target.classList.add("t-input_has-content")
-          : t.target.classList.remove("t-input_has-content")
-      })
-    })
-  })
-};
+      form.querySelectorAll('input, textarea, select').forEach(function(field){
 
-let s=t=>{
-  t.forEach(t=>{
-    let o=t.querySelector(".t396__artboard"),
-        n=t.querySelectorAll(e),
-        i=t.querySelector(r);
+        field.removeAttribute('data-tilda-req');
+        field.removeAttribute('required');
 
-    if(!o){
-      console.error("[TKFORM] Не найден элемент t396__artboard в блоке:",t);
-      return false
-    }
+      });
 
-    if(0===n.length){
-      console.error(`[TKFORM] Не найдено ни одной формы с классом ${e} в блоке`,t);
-      return false
-    }
-
-    if(!i){
-      console.error(`[TKFORM] Не найдено кнопки submit с классом ${r} в блоке`,t);
-      return false
-    }
-
-    let a=o.dataset.artboardRecid
-      ? "tk-form"+o.dataset.artboardRecid
-      : "tk-form"+Math.floor(1e5+9e5*Math.random());
-
-    let s=document.createElement("div");
-
-    s.innerHTML=`<form class="t-form t-form_inputs-total_2 js-form-proccess" id="${a}" name="form778879734" action="https://forms.tildacdn.com/procces/" method="POST" role="form" data-formactiontype="2" data-inputbox=".t-input-group" data-success-callback="t396_onSuccess" data-success-popup="y" data-error-popup="y"></form>`;
-
-    let u=s.childNodes[0];
-
-    n.forEach(t=>{
-      let e=t.querySelector("form");
-
-      if(!e){
-        console.error("[TKFORM] Не найдено формы в элементе",t);
-        return false
-      }
-
-      let r=document.createElement("div");
-
-      [...e.attributes].forEach(t=>r.setAttribute(t.name,t.value));
-      r.append(...e.cloneNode(!0).childNodes);
-      e.replaceWith(r);
-
-      u.appendChild(t)
     });
 
-    u.appendChild(i);
-    o.appendChild(u);
-    l(u,i)
-  })
+    submit.addEventListener('click', function(e){
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      if(submit.dataset.sending === '1') return;
+      submit.dataset.sending = '1';
+
+      mainForm.querySelectorAll('[data-merged-field]').forEach(function(el){
+        el.remove();
+      });
+
+      forms.slice(1).forEach(function(form){
+
+        form.querySelectorAll('input, textarea, select').forEach(function(field){
+
+          if(field.type === 'submit' || field.type === 'button') return;
+
+          const clone = field.cloneNode(true);
+
+          clone.removeAttribute('data-tilda-req');
+          clone.removeAttribute('required');
+
+          clone.setAttribute('data-merged-field', '1');
+
+          clone.style.position = 'absolute';
+          clone.style.left = '-99999px';
+          clone.style.opacity = '0';
+          clone.style.pointerEvents = 'none';
+          clone.style.width = '1px';
+          clone.style.height = '1px';
+
+          if(field.type === 'checkbox' || field.type === 'radio'){
+            clone.checked = field.checked;
+          } else {
+            clone.value = field.value;
+          }
+
+          mainForm.appendChild(clone);
+
+        });
+
+      });
+
+      const nativeSubmit = mainForm.querySelector(
+        '.t-submit, button[type="submit"], input[type="submit"]'
+      );
+
+      if(nativeSubmit){
+        nativeSubmit.click();
+      }
+
+      setTimeout(function(){
+        submit.dataset.sending = '0';
+      }, 5000);
+
+    });
+
+  }
 };
 
-let l=(t,e)=>{
-  if(!t){
-    console.error("[TKFORM] Не найдено комбинированной формы");
-    return false
-  }
-
-  if(!e){
-    console.error("[TKFORM] Не найдено кнопки submit в форме",t);
-    return false
-  }
-
-  e.setAttribute("type","submit");
-  e.setAttribute("tabindex","0");
-  e.setAttribute("onKeyDown","tkForm.handleSubmitKeyDown(event)");
-
-  let r=e.getAttribute("style") || "";
-  e.setAttribute("style",r+" cursor: pointer;");
-
-  e.addEventListener("click",e=>{
-    e.preventDefault();
-    e.stopPropagation();
-
-    if(t.dataset.tkSending==="true"){
-      return false;
-    }
-
-    window.tildaForm.hideErrors(t);
-
-    let r=window.tildaForm.validate(t);
-
-    if(r.length){
-      window.tildaForm.showErrors(t,r);
-      return false
-    }
-
-    if(!t_forms__initBtnClick){
-      console.error("[TKFORM] Функция t_forms__initBtnClick не инициализирована на странице");
-      return false
-    }
-
-    t.dataset.tkSending="true";
-
-    t_forms__initBtnClick(e);
-
-    setTimeout(()=>{
-      t.dataset.tkSending="false";
-    },10000);
-
-    return false;
-  });
-
-  e.classList.add("t-submit");
-
-  t_onReady(function(){
-    setTimeout(function(){
-      window.t_upwidget__init
-        ? t_zeroForms__onFuncLoad("t_upwidget__init",()=>e.classList.remove("t-submit"))
-        : e.classList.remove("t-submit")
-    },500)
-  })
-};
-
-t.tkForm={
-  init:o,
-  handleSubmitKeyDown:function(t){
-    (13===t.keyCode||32===t.keyCode)&&(
-      t.preventDefault(),
-      t.target.dispatchEvent(new Event("click"))
-    )
-  }
-}
-}(window);
+})(window);
